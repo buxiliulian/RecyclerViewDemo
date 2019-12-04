@@ -19,7 +19,7 @@ public class SimpleCursorAdapter extends CursorAdapter {
     }
 
     @Override
-    protected void bindCursorViewHolder(VH holder, Cursor cursor) {
+    protected void bindCursorViewHolder(BaseViewHolder holder, Cursor cursor) {
         for (int i = 0; i < mTo.length; i++) {
             View view = holder.getView(mTo[i]);
             String str = cursor.getString(cursor.getColumnIndexOrThrow(mFrom[i]));
@@ -38,4 +38,5 @@ public class SimpleCursorAdapter extends CursorAdapter {
     protected int getLayoutId(int viewType) {
         return mLayoutId;
     }
+
 }

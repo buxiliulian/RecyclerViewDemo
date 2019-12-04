@@ -1,10 +1,13 @@
 package com.umx.recyclerviewdemo.adapter;
 
 import android.database.Cursor;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
-public abstract class CursorAdapter extends BaseAdapter {
+public abstract class CursorAdapter extends RecyclerView.Adapter<BaseViewHolder>
+{
 
     protected Cursor mCursor;
 
@@ -12,14 +15,23 @@ public abstract class CursorAdapter extends BaseAdapter {
         mCursor = cursor;
     }
 
+    @NonNull
     @Override
-    public void onBindViewHolder(@NonNull VH holder, int position) {
+    public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
+    {
+        return BaseViewHolder.newVH(parent, getLayoutId(viewType));
+    }
+
+    protected abstract int getLayoutId(int viewType);
+
+    @Override
+    public void onBindViewHolder(@NonNull BaseViewHolder holder, int position) {
         if (mCursor.moveToPosition(position)) {
             bindCursorViewHolder(holder, mCursor);
         }
     }
 
-    protected abstract void bindCursorViewHolder(VH holder, Cursor cursor);
+    protected abstract void bindCursorViewHolder(BaseViewHolder holder, Cursor cursor);
 
     @Override
     public int getItemCount() {
