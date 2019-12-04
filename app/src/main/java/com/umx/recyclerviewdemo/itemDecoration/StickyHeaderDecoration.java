@@ -13,12 +13,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class StickyHeaderDecoration extends RecyclerView.ItemDecoration {
+public class StickyHeaderDecoration extends RecyclerView.ItemDecoration
+{
 
     /**
      * 注意: 这个回调的两个函数都是使用Adapter position, 而不是layout position.
      */
-    public interface Callback {
+    public interface Callback
+    {
         boolean hasHeader(int adapterPosition);
 
         String getHeaderText(int adapterPosition);
@@ -37,14 +39,17 @@ public class StickyHeaderDecoration extends RecyclerView.ItemDecoration {
     // 用于绘制header背景
     private Paint mHeaderBgPaint;
 
-    private StickyHeaderDecoration(Builder builder) {
+    private StickyHeaderDecoration(Builder builder)
+    {
         mContext = builder.mContext;
         mOrientation = builder.mOrientation;
-        if (mOrientation != VERTICAL && mOrientation != HORIZONTAL) {
+        if (mOrientation != VERTICAL && mOrientation != HORIZONTAL)
+        {
             throw new IllegalArgumentException("StickyHeaderDecoration only support VERTICAL and HORIZONTAL orientation!");
         }
         mCallback = builder.mCallback;
-        if (mCallback == null) {
+        if (mCallback == null)
+        {
             throw new IllegalArgumentException("StickyHeaderDecoration needs a non-null callback!");
         }
 
@@ -67,32 +72,41 @@ public class StickyHeaderDecoration extends RecyclerView.ItemDecoration {
      * 注意: 此时通过View获取ViewHolder是为null，以为还没有完成layout过程
      */
     @Override
-    public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-        if (mOrientation == VERTICAL) {
+    public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state)
+    {
+        if (mOrientation == VERTICAL)
+        {
             int position = parent.getChildAdapterPosition(view);
-            if (mCallback != null && mCallback.hasHeader(position)) {
+            if (mCallback != null && mCallback.hasHeader(position))
+            {
                 outRect.set(0, mHeaderHeight, 0, 0);
             }
-        } else {
+        } else
+        {
             // TODO: 实现水平的逻辑
         }
     }
 
     @Override
-    public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+    public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state)
+    {
         c.save();
         RecyclerView.LayoutManager layoutManager = parent.getLayoutManager();
-        if (layoutManager == null) {
+        if (layoutManager == null)
+        {
             return;
         }
-        if (mOrientation == VERTICAL) {
+        if (mOrientation == VERTICAL)
+        {
             Rect textBound = new Rect();
             // 遍历子View，绘制header
-            for (int i = 0; i < parent.getChildCount(); i++) {
+            for (int i = 0; i < parent.getChildCount(); i++)
+            {
                 View child = parent.getChildAt(i);
                 int position = parent.getChildAdapterPosition(child);
                 // 如果有header就开始绘制
-                if (mCallback != null && mCallback.hasHeader(position)) {
+                if (mCallback.hasHeader(position))
+                {
                     // 1. 绘制背景
                     c.drawRect(layoutManager.getDecoratedLeft(child),
                             layoutManager.getDecoratedTop(child),
@@ -112,18 +126,43 @@ public class StickyHeaderDecoration extends RecyclerView.ItemDecoration {
                 }
             }
 
-        } else {
+        } else
+        {
             // TODO: 实现水平逻辑
         }
         c.restore();
     }
 
     @Override
-    public void onDrawOver(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-
+    public void onDrawOver(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state)
+    {
+        if (mOrientation == VERTICAL)
+        {
+            RecyclerView.LayoutManager layoutManager = parent.getLayoutManager();
+            if (layoutManager instanceof LinearLayoutManager)
+            {
+                LinearLayoutManager llm = (LinearLayoutManager) layoutManager;
+                int firstVisibleItemPosition = llm.findFirstVisibleItemPosition();
+                if (firstVisibleItemPosition != RecyclerView.NO_POSITION)
+                {
+                    View firstView = llm.findViewByPosition(firstVisibleItemPosition);
+                    int childAdapterPosition = parent.getChildAdapterPosition(firstView);
+                    c.drawRect(parent.getPaddingLeft(), parent.getPaddingTop(), parent.getWidth() - parent.getPaddingRight(),
+                            parent.getPaddingTop() + mHeaderHeight, mHeaderBgPaint);
+                    String headerText = mCallback.getHeaderText(childAdapterPosition);
+                    Rect textBound = new Rect();
+                    mHeaderTextPaint.getTextBounds(headerText, 0, headerText.length(), textBound);
+                    c.drawText(headerText, firstView.getLeft() + firstView.getPaddingLeft(), parent.getPaddingTop() + mHeaderHeight / 2.f + textBound.height() / 2.f, mHeaderTextPaint);
+                }
+            }
+        } else
+        {
+           // TODO: 实现垂直逻辑
+        }
     }
 
-    public static class Builder {
+    public static class Builder
+    {
         private Context mContext;
         private int mOrientation;
         private Callback mCallback;
@@ -132,28 +171,33 @@ public class StickyHeaderDecoration extends RecyclerView.ItemDecoration {
         // small: 14sp, medium: 18sp, Large:22sp
         private int mTextSize = 14; // sp
 
-        public Builder(Context context, int orientation, Callback callback) {
+        public Builder(Context context, int orientation, Callback callback)
+        {
             mContext = context;
             mOrientation = orientation;
             mCallback = callback;
         }
 
-        public Builder setHeaderBgColor(int color) {
+        public Builder setHeaderBgColor(int color)
+        {
             mBgColor = color;
             return this;
         }
 
-        public Builder setHeaderTextColor(int color) {
+        public Builder setHeaderTextColor(int color)
+        {
             mTextColor = color;
             return this;
         }
 
-        public Builder setHeaderTextSize(int spSize) {
+        public Builder setHeaderTextSize(int spSize)
+        {
             mTextSize = spSize;
             return this;
         }
 
-        public StickyHeaderDecoration create() {
+        public StickyHeaderDecoration create()
+        {
             return new StickyHeaderDecoration(this);
         }
     }
